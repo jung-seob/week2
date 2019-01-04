@@ -31,7 +31,7 @@ import java.util.HashMap;
 
 public class Tab2 extends Fragment {
     static final int REQUEST_PERMISSION_KEY = 2051;
-    LoadAlbum loadAlbumTask;
+  //  LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
     View rootView;
@@ -40,12 +40,6 @@ public class Tab2 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("yelin","start create view tab2");
         rootView = inflater.inflate(R.layout.tab2, container, false);
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 1);
-        }
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             galleryGridView = rootView.findViewById(R.id.gridview);
             int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
@@ -58,7 +52,24 @@ public class Tab2 extends Fragment {
                 float px = Function.convertDpToPixel(dp, getActivity().getApplicationContext());
                 galleryGridView.setColumnWidth(Math.round(px));
             }
+            String path = null;
+            String timestamp = null;
+            String[] projection = {MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_MODIFIED};
 
+            Cursor imageCursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
+
+            if (imageCursor != null && imageCursor.moveToLast()) {
+                do {
+                    path = imageCursor.getString(imageCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+                    timestamp = imageCursor.getString(imageCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
+                    albumList.add(mappingInbox(path, timestamp, convertToTime(timestamp)));
+                } while (imageCursor.moveToPrevious());
+                imageCursor.close();
+            }
+            Log.d("yelin","image num : " + albumList.size());
             galleryGridView.setAdapter(new AlbumAdapter(getActivity(), albumList));
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -86,45 +97,29 @@ public class Tab2 extends Fragment {
         return formatter.format(date);
     }
 
-    class LoadAlbum extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            albumList.clear();
-        }
-
-        protected String doInBackground(String... args) {
-            Log.d("yelin", "do in Background");
-            String xml = "";
-            String path = null;
-            String timestamp = null;
-            String[] projection = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATE_MODIFIED};
-
-            Cursor imageCursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
-
-            if (imageCursor != null && imageCursor.moveToLast()) {
-                do {
-                    path = imageCursor.getString(imageCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
-                    timestamp = imageCursor.getString(imageCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
-                    albumList.add(mappingInbox(path, timestamp, convertToTime(timestamp)));
-                } while (imageCursor.moveToPrevious());
-                imageCursor.close();
-            }
-            return xml;
-        }
-
-    }
-
     @Override
     public void onResume() {
         Log.d("yelin","on resume");
         super.onResume();
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            loadAlbumTask = new LoadAlbum();
-            loadAlbumTask.execute();
+            galleryGridView = rootView.findViewById(R.id.gridview);
+            int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
+            Resources resources = getActivity().getApplicationContext().getResources();
+            DisplayMetrics metrics = resources.getDisplayMetrics();
+            float dp = iDisplayWidth / (metrics.densityDpi / 160f);
+            if(dp < 360)
+            {
+                dp = (dp - 17) / 2;
+                float px = Function.convertDpToPixel(dp, getActivity().getApplicationContext());
+                galleryGridView.setColumnWidth(Math.round(px));
+            }
+            galleryGridView.setAdapter(new AlbumAdapter(getActivity(), albumList));
+            galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Log.d("yelin","clicked");
+                }
+            });
         }
         else
         {

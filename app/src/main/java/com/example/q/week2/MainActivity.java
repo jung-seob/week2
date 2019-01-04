@@ -48,12 +48,12 @@ public class MainActivity extends AppCompatActivity {
         PermissionListener permissionlistener = new PermissionListener() {
             @Override
             public void onPermissionGranted() {
-                Toast.makeText(MainActivity.this, "밥먹을 준비가 되었어요!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                Toast.makeText(MainActivity.this, "아직 밥먹을 준비가 안되어 있어요ㅠ^ㅠ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
                 finish();
             }
         };
