@@ -44,9 +44,12 @@ public class Tab1 extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("yelin","tab 1 view create start");
         rootView = inflater.inflate(R.layout.tab1, container, false);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        Log.d("yelin","going to get permission");
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("yelin","contacts permission is not granted");
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 1);
         }
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -70,11 +73,9 @@ public class Tab1 extends Fragment {
                     filter(s.toString());
                 }
             });
-
             rootView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    Log.d("asdf", "aa");
                     hideKeyboard(v);
                     return false;
                 }
@@ -83,7 +84,6 @@ public class Tab1 extends Fragment {
             editText.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    Log.d("asdf", "aa");
                     hideKeyboard(v);
                     return false;
                 }
@@ -92,23 +92,23 @@ public class Tab1 extends Fragment {
             recyclerView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    Log.d("asdf", "aa");
                     hideKeyboard(v);
                     return false;
                 }
             });
         }
         FloatingActionButton add = rootView.findViewById(R.id.add);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent addContact = new Intent(ContactsContract.Intents.Insert.ACTION);
-                addContact.setType(ContactsContract.RawContacts.CONTENT_TYPE);
-                startActivity(addContact);
-                Snackbar.make(v, "Add New Contact", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        add.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent addContact = new Intent(ContactsContract.Intents.Insert.ACTION);
+//                addContact.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+//                startActivity(addContact);
+//                Snackbar.make(v, "Add New Contact", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+        Log.d("yelin","tab 1 created view successfully");
         return rootView;
     }
     @Override
@@ -156,7 +156,6 @@ public class Tab1 extends Fragment {
                 if(input==null)
                 {
                     temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
-                    Log.d("Don't have photo",contactCursor.getString(1));
                 }
                 else
                 {
