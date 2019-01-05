@@ -38,7 +38,6 @@ public class Tab2 extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("yelin","start create view tab2");
         rootView = inflater.inflate(R.layout.tab2, container, false);
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             galleryGridView = rootView.findViewById(R.id.gridview);
@@ -69,7 +68,6 @@ public class Tab2 extends Fragment {
                 } while (imageCursor.moveToPrevious());
                 imageCursor.close();
             }
-            Log.d("yelin","image num : " + albumList.size());
             galleryGridView.setAdapter(new AlbumAdapter(getActivity(), albumList));
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -99,7 +97,6 @@ public class Tab2 extends Fragment {
 
     @Override
     public void onResume() {
-        Log.d("yelin","on resume");
         super.onResume();
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             galleryGridView = rootView.findViewById(R.id.gridview);

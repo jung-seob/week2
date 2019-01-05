@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -30,7 +31,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Tab1 extends Fragment {
@@ -119,42 +125,64 @@ public class Tab1 extends Fragment {
         }
     }
 
-    private ArrayList<contact_item> GetList(){////여기부분 수정해야할듯
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+    private ArrayList<contact_item> GetList() {////여기부분 수정해야할듯
+        ArrayList<contact_item> persons = new ArrayList();
 
-        String[] projection = new String[] {
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-        };
-
-        String[] selectionArgs = null;
-
-        //정렬
-        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-        //조회해서 가져온다
-        Cursor contactCursor = getContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
-
-        //정보를 담을 array 설정
-        ArrayList <contact_item> persons = new ArrayList();
-
-        if(contactCursor.moveToFirst()){
-            do{
-                contact_item temp = new contact_item(contactCursor.getString(1) , contactCursor.getString(0));
-                Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
-                InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
-
-                if(input==null)
-                {
-                    temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
-                }
-                else
-                {
-                    temp.setPhoto(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), 50, 50, true));
-                }
-                persons.add(temp);
-            }while(contactCursor.moveToNext());
-        }
+//        Thread thread = new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    URL url = new URL("http://socrip4.kaist.ac.kr:2380");
+//                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//                    connection.setRequestMethod("GET");
+//                    connection.setConnectTimeout(10000);
+//                    connection.setReadTimeout(10000);
+//                    InputStream inputStream = connection.getInputStream();
+//                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+//                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//                    Log.d("yelin", String.valueOf(connection.getResponseCode()));
+//                    Log.d("yelin",bufferedReader.readLine());
+//                }
+//                catch (Exception e) {
+//                    Log.d("yelin", e.getMessage());
+//                }
+//            }
+//        };
+//        thread.start();
+//        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+//
+//        String[] projection = new String[] {
+//                ContactsContract.CommonDataKinds.Phone.NUMBER,
+//                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+//                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+//        };
+//
+//        String[] selectionArgs = null;
+//
+//        //정렬
+//        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+//        //조회해서 가져온다
+//        Cursor contactCursor = getContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
+//
+//        //정보를 담을 array 설정
+//
+//        if(contactCursor.moveToFirst()){
+//            do{
+//                contact_item temp = new contact_item(contactCursor.getString(1) , contactCursor.getString(0));
+//                Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
+//                InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
+//
+//                if(input==null)
+//                {
+//                    temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
+//                }
+//                else
+//                {
+//                    temp.setPhoto(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), 50, 50, true));
+//                }
+//                persons.add(temp);
+//            }while(contactCursor.moveToNext());
+//        }
         return persons;
     }
     private void buildRecyclerView()
@@ -196,3 +224,6 @@ public class Tab1 extends Fragment {
         return s;
     }
 }
+
+
+
