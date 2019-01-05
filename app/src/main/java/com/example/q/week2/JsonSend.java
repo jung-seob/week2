@@ -1,20 +1,20 @@
 package com.example.q.week2;
 
 import android.util.Log;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class JsonSend {
     private String url_string;
     private JSONObject json;
     private int statusCode;
+    private ArrayList<contact_item> contactList;
 
     public JsonSend(String url, JSONObject json) {
         this.url_string = url;
@@ -110,5 +110,51 @@ public class JsonSend {
             }
         };
         newThread.start();
+    }
+    public ArrayList<contact_item> getAllContact()
+    {
+        Log.d("yelin","getList in Json send");
+        contactList = new ArrayList<contact_item>();
+        Thread newThread = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    URL url = new URL(url_string+ "/"+json.optString("id"));
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    statusCode = connection.getResponseCode();
+                    Log.d("yelin",String .valueOf(statusCode));
+                    BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    JSONArray jsonArray = new JSONArray();
+                    if((line=serverAnswer.readLine())!=null)
+                    {
+                        jsonArray = new JSONArray(line);
+                    }
+                    for(int i = 0 ; i <jsonArray.length();i++)
+                    {
+                        JSONObject temp = (JSONObject) jsonArray.get(i);
+                        String name = temp.getString("name");
+                        String phone = temp.getString("phone");
+                        contactList.add(new contact_item(name,phone));
+                    }
+                    serverAnswer.close();
+                } catch (Exception e) {
+                    Log.d("yelin",e.getMessage());
+                }
+            }
+        };
+        newThread.start();
+        try{
+            newThread.join();
+            Log.d("yelin number",String.valueOf(contactList.size()));
+        }
+        catch(Exception e)
+        {
+
+        }
+        return contactList;
     }
 }
