@@ -49,7 +49,6 @@ public class Tab3 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.tab3,container,false);
         callbackManager = CallbackManager.Factory.create();
-
         loginButton = rootView.findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile","user_friends","email");
         loginButton.setFragment(this);

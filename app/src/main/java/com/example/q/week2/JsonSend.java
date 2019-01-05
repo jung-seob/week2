@@ -20,8 +20,9 @@ public class JsonSend {
         this.url_string = url;
         this.json = json;
     }
-    public void register()
+    public void create()
     {
+        Log.d("yelin","start create");
         Thread newThread = new Thread()
         {
           @Override
@@ -36,6 +37,7 @@ public class JsonSend {
                   connection.setDoOutput(true);
                   OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
                   wr.write(json.toString());
+                  Log.d("yelin",json.toString());
                   wr.flush();
                   BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                   String line;
@@ -47,7 +49,7 @@ public class JsonSend {
                   serverAnswer.close();
 
               } catch (Exception e) {
-                  Log.d("yelin",e.getMessage());
+                  Log.d("yelin error",e.getMessage());
               }
           }
         };
@@ -72,7 +74,35 @@ public class JsonSend {
                     }
                     else if(statusCode == 404)
                     {
-                        register();
+                        create();
+                    }
+                } catch (Exception e) {
+                    Log.d("yelin",e.getMessage());
+                }
+            }
+        };
+        newThread.start();
+    }
+    public void retriveContactByOwner()
+    {
+        Thread newThread = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    URL url = new URL(url_string+ "/"+json.optString("contactOwner")+"/"+json.optString("phone"));
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    statusCode = connection.getResponseCode();
+                    Log.d("yelin",String .valueOf(statusCode));
+                    if(statusCode==200)
+                    {
+                        Log.d("yelin","already has that number");
+                    }
+                    else if(statusCode == 404)
+                    {
+                       create();
                     }
                 } catch (Exception e) {
                     Log.d("yelin",e.getMessage());
