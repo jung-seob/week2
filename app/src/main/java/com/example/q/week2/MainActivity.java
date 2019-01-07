@@ -79,15 +79,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.READ_CONTACTS,
                         Manifest.permission.WRITE_CONTACTS)
                 .check();
-        //</테드 퍼미션>
-    }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

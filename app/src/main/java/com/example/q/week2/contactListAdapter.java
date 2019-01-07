@@ -1,12 +1,18 @@
 package com.example.q.week2;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.MyViewHolder> {
@@ -33,11 +39,27 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
         return vh;
     }
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position)
+    public void onBindViewHolder(final MyViewHolder holder, final int position)
     {
+        Log.d("yelin","on Bind View Holder");
         holder.name_view.setText(contactList.get(position).getName());
         holder.num_view.setText(contactList.get(position).getNumber());
-        holder.photo_view.setImageBitmap(contactList.get(position).getPhoto());
+       if(contactList.get(position).getHasImage()==1) {
+            final String imageString = contactList.get(position).getImage();
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        URL url = new URL("http://socrip4.kaist.ac.kr:2380/api/image/" + contactList.get(position).getNumber() + ".jpg");
+                        Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        holder.photo_view.setImageBitmap(image);
+                    } catch (Exception e) {
+                        Log.d("yelin bb", e.getMessage());
+                    }
+                }
+            };
+            thread.start();
+       }
     }
 
     @Override
