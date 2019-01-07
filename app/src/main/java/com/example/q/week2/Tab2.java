@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Tab2 extends Fragment {
     GridView galleryGridView;
@@ -30,9 +31,9 @@ public class Tab2 extends Fragment {
         rootView = inflater.inflate(R.layout.tab2, container, false);
         myInfo = new JSONObject();
         try {
-            myInfo.put("id", "45645654654");
-            myInfo.put("name","정예린");
-            myInfo.put("email","jyl7464@naver.com");
+            myInfo.put("id", Token.ID);
+            myInfo.put("name",Token.Name);
+            myInfo.put("email",Token.email);
         }
         catch (Exception e)
         {
@@ -53,7 +54,7 @@ public class Tab2 extends Fragment {
             @Override
             public void onClick(View v) {
                 pickImage();
-                Snackbar.make(v, "Add All Contact to Server", Snackbar.LENGTH_LONG)
+                Snackbar.make(v, "Add a Photo to Server", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -87,19 +88,21 @@ public class Tab2 extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
             if (data == null) {
-                //Display an error
                 return;
             }
             try {
                 JSONObject object = new JSONObject();
                 InputStream inputStream = getContext().getContentResolver().openInputStream(data.getData());
-                Bitmap image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream),50,50,true);
+                Bitmap image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream),100,100,true);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 image.compress(Bitmap.CompressFormat.JPEG,100,baos);
                 byte[] imageBytes = baos.toByteArray();
                 String imageString = Base64.encodeToString(imageBytes,Base64.DEFAULT);
-                object.put("imageOwner",myInfo.getString("id"));
-                object.put("name","a");
+                object.put("imageOwner",Token.ID);
+                Random rnd = new Random();
+                String name = String.valueOf(rnd.nextInt(5000));
+                Log.d("naming",name);
+                object.put("name",name);
                 object.put("image",imageString);
                 JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/gallery",object);
                 jsonSend.create();

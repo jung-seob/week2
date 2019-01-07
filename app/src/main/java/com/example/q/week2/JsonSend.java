@@ -135,6 +135,7 @@ public class JsonSend {
                     }
                     for(int i = 0 ; i <jsonArray.length();i++)
                     {
+                        Log.d("yelin","b");
                         JSONObject temp = (JSONObject) jsonArray.get(i);
                         String name = temp.getString("name");
                         String phone = temp.getString("phone");
@@ -154,8 +155,9 @@ public class JsonSend {
         }
         catch(Exception e)
         {
-
+            Log.d("yelin", "exception");
         }
+        Log.d("yelin","c");
         return contactList;
     }
     public ArrayList<String> getAllImage()
@@ -172,7 +174,6 @@ public class JsonSend {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     statusCode = connection.getResponseCode();
-                    Log.d("yelin",String .valueOf(statusCode));
                     BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     String line;
                     JSONArray jsonArray = new JSONArray();
@@ -184,7 +185,6 @@ public class JsonSend {
                     {
                         JSONObject temp = (JSONObject) jsonArray.get(i);
                        imageList.add(temp.getString("name"));
-                       Log.d("yelin path",imageList.get(i));
                     }
                     serverAnswer.close();
                 } catch (Exception e) {

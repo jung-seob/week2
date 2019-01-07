@@ -60,6 +60,9 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
             };
             thread.start();
        }
+       else{
+           holder.photo_view.setImageResource(R.drawable.ic_action_name);
+       }
     }
 
     @Override

@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar =  findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -50,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-
-
         // 테드 퍼미션
         PermissionListener permissionlistener = new PermissionListener() {
             @Override
@@ -59,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "어플 이용 권한 획득하였습니다!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, facebookActivity.class);
                 MainActivity.this.startActivity(intent);
-
-                Log.d("she","he");
             }
 
             @Override

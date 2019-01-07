@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -34,83 +36,54 @@ import java.util.Arrays;
 
 public class facebookActivity extends AppCompatActivity {
 
-
     CallbackManager callbackManager;
     LoginButton loginButton;
     LoginManager loginManager;
     AccessToken accessToken;
     String graph = null;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    Log.d("hmm","lalalal");
-
 //        // 페북  SDK정보 초기화
 //        FacebookSdk.sdkInitialize(getApplicationContext());
 //        AppEventsLogger.activateApp(this);
 //        //</페북 SDK정보 초기화>
 
         setContentView(R.layout.facebook_main);
-
-
-
         callbackManager = CallbackManager.Factory.create();
 
         loginButton = findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile", "user_friends", "email");
-
         accessToken = AccessToken.getCurrentAccessToken();
-
-
 
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "email"));
-        // Callback registration
-
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("hmm","lalalal2");
-                Log.d("TAG", "페이스북 토큰 = " + loginResult.getAccessToken().getToken());
-                Log.d("TAG", "페이스북 UserID = " + loginResult.getAccessToken().getUserId());
-                Log.d("TAG", "페이스북 Application ID = " + loginResult.getAccessToken().getApplicationId());
-
                 Thread thread = new Thread() {
                     @Override
                     public void run() {
                         try {
                             getFBGraph();
                         } catch (Exception e) {
-                            Log.d("yelin", e.getMessage());
                         }
                     }
                 };
                 thread.start();
-                Log.d("hmm","lalalal3");
-//                Intent intent = new Intent(facebookActivity.this, MainActivity.class);
-//                facebookActivity.this.startActivity(intent);
                 finish();
             }
 
             @Override
             public void onCancel() {
-                // App code
-                Log.d("yelin", "on Cancel");
             }
 
             @Override
             public void onError(FacebookException exception) {
-                // App code
             }
         });
-
-////        LoginManager.getInstance().logInWithReadPermissions();
-//        // return rootView;
-//
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -132,6 +105,16 @@ public class facebookActivity extends AppCompatActivity {
                                 @Override
                                 public void onCompleted(final JSONObject object, GraphResponse response) {
                                     Log.d("yelin",object.toString());
+                                    try {
+                                        Token.ID = object.getString("id");
+                                        Token.Name = object.getString("name");
+                                        Token.email = object.getString("email");
+                                        Log.d("checkkkk",Token.email+Token.ID+Token.Name);
+                                    }
+                                    catch(Exception e)
+                                    {
+
+                                    }
                                     JsonSend send = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/user",object);
                                     send.retriveUserById();
                                 }
@@ -151,5 +134,4 @@ public class facebookActivity extends AppCompatActivity {
         thread.start();
         return graph;
     }
-
 }

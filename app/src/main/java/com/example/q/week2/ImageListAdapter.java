@@ -52,13 +52,13 @@ public class ImageListAdapter extends BaseAdapter {
             imageView = (ImageView)convertView;
         }
         try {
+            Log.d("imageList",imageList.get(position));
             Glide.with(context).load("http://socrip4.kaist.ac.kr:2380/api/gallery/" + imageList.get(position)).into(imageView);
         }
         catch(Exception e)
         {
             Log.d("yelin 123",e.getMessage());
         }
-        Log.d("yelin check","return");
         return imageView;
     }
 }
