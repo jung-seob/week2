@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -31,14 +30,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class Tab1 extends Fragment {
@@ -49,22 +41,10 @@ public class Tab1 extends Fragment {
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     contactListAdapter listAdapter;
-    JSONObject myInfo;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.tab1, container, false);
-        myInfo = new JSONObject();
-        try {
-            myInfo.put("id", "45645654654");
-            myInfo.put("name","정예린");
-            myInfo.put("email","jyl7464@naver.com");
-        }
-        catch (Exception e)
-        {
-
-        }
-        //내정보 페북 token이용해서 전체로 가져오기!!
-        //임시로 바로 지정해주었음
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_DENIED) {
             arrayList = GetList();
@@ -113,8 +93,10 @@ public class Tab1 extends Fragment {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addContactToServer();
-                Snackbar.make(v, "Add All Contact to Server", Snackbar.LENGTH_LONG)
+                Intent addContact = new Intent(ContactsContract.Intents.Insert.ACTION);
+                addContact.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+                startActivity(addContact);
+                Snackbar.make(v, "Add New Contact", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -122,7 +104,6 @@ public class Tab1 extends Fragment {
     }
     @Override
     public void onResume() {
-        Log.d("yelin","onResume");
         super.onResume();
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_DENIED) {
             ArrayList<contact_item> arrayList;
@@ -138,11 +119,42 @@ public class Tab1 extends Fragment {
         }
     }
 
-    private ArrayList<contact_item> GetList() {
-        Log.d("yelin","GetList");
-        ArrayList<contact_item> persons = new ArrayList();
-        JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/contact",myInfo);
-        persons= jsonSend.getAllContact();
+    private ArrayList<contact_item> GetList(){////여기부분 수정해야할듯
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+
+        String[] projection = new String[] {
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+        };
+
+        String[] selectionArgs = null;
+
+        //정렬
+        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+        //조회해서 가져온다
+        Cursor contactCursor = getContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
+
+        //정보를 담을 array 설정
+        ArrayList <contact_item> persons = new ArrayList();
+
+        if(contactCursor.moveToFirst()){
+            do{
+                contact_item temp = new contact_item(contactCursor.getString(1) , contactCursor.getString(0));
+                Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
+                InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
+
+                if(input==null)
+                {
+                    temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
+                }
+                else
+                {
+                    temp.setPhoto(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), 50, 50, true));
+                }
+                persons.add(temp);
+            }while(contactCursor.moveToNext());
+        }
         return persons;
     }
     private void buildRecyclerView()
@@ -183,49 +195,4 @@ public class Tab1 extends Fragment {
         }
         return s;
     }
-    public void addContactToServer()
-    {
-        Log.d("yelin","add start");
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-
-        String[] projection = new String[] {
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                //ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-        };
-        String[] selectionArgs = null;
-        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-        Cursor contactCursor = getContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
-        if(contactCursor.moveToFirst()){
-            do{
-                JSONObject people = new JSONObject();
-                try {
-                    people.put("name", contactCursor.getString(1));
-                    people.put("phone", contactCursor.getString(0));
-                    people.put("contactOwner","45645654654");
-                    JsonSend send = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/contact",people);
-                    send.retriveContactByOwner();
-                }
-                catch(Exception e)
-                {
-
-                }
-             //   Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
-                //InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
-//
-//                if(input==null)
-//                {
-//                    temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
-//                }
-//                else
-//                {
-//                    temp.setPhoto(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), 50, 50, true));
-//                }
-            }while(contactCursor.moveToNext());
-        }
-    }
-
 }
-
-
-
