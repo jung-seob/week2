@@ -129,10 +129,9 @@ public class Tab1 extends Fragment {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_DENIED) {
             ArrayList<contact_item> arrayList;
             arrayList = GetList();
-            RecyclerView recyclerView = rootView.findViewById(R.id.contactView);
-            recyclerView.setHasFixedSize(true);
-            contactListAdapter listAdapter = new contactListAdapter(arrayList);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+            recyclerView = rootView.findViewById(R.id.contactView);
+            layoutManager = new LinearLayoutManager(getActivity());
+            listAdapter = new contactListAdapter(arrayList);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.scrollToPosition(0);
             recyclerView.setAdapter(listAdapter);
@@ -221,7 +220,6 @@ public class Tab1 extends Fragment {
                 {
                     Log.d("yelin","not null");
                     image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input),50,50,true);
-                    resized = Bitmap.createScaledBitmap(image, 10, 10, true);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     image.compress(Bitmap.CompressFormat.JPEG,100,baos);
                     byte[] imageBytes = baos.toByteArray();
@@ -239,5 +237,6 @@ public class Tab1 extends Fragment {
                 send.retriveContactByOwner();
             }while(contactCursor.moveToNext());
         }
+        Log.d("yelin","end add all contacts");
     }
 }

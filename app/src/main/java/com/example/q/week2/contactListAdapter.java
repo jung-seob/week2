@@ -44,7 +44,7 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
         Log.d("yelin","on Bind View Holder");
         holder.name_view.setText(contactList.get(position).getName());
         holder.num_view.setText(contactList.get(position).getNumber());
-       // if(contactList.get(position).getHasImage()==1) {
+       if(contactList.get(position).getHasImage()==1) {
             final String imageString = contactList.get(position).getImage();
             Thread thread = new Thread() {
                 @Override
@@ -59,7 +59,7 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
                 }
             };
             thread.start();
-     //   }
+       }
     }
 
     @Override
