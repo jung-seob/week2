@@ -22,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -34,6 +35,7 @@ import android.widget.EditText;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -147,6 +149,7 @@ public class Tab1 extends Fragment {
     }
     private void buildRecyclerView()
     {
+        Log.d("yelin","build Recycler View");
         recyclerView = rootView.findViewById(R.id.contactView);
         layoutManager = new LinearLayoutManager(getActivity());
         listAdapter = new contactListAdapter(arrayList);
@@ -154,6 +157,7 @@ public class Tab1 extends Fragment {
         recyclerView.scrollToPosition(0);
         recyclerView.setAdapter(listAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        Log.d("yelin","end build Recycler View");
     }
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
@@ -191,7 +195,7 @@ public class Tab1 extends Fragment {
         String[] projection = new String[] {
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                //ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
         };
         String[] selectionArgs = null;
         String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
@@ -203,29 +207,37 @@ public class Tab1 extends Fragment {
                     people.put("name", contactCursor.getString(1));
                     people.put("phone", contactCursor.getString(0));
                     people.put("contactOwner","45645654654");
-                    JsonSend send = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/contact",people);
-                    send.retriveContactByOwner();
+                Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
+                InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
+                Bitmap image;
+                Bitmap resized;
+                if(input==null)
+                {
+                    Log.d("yelin","null");
+                    people.put("image","0");
+                    people.put("hasImage",0);
+                }
+                else
+                {
+                    Log.d("yelin","not null");
+                    image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input),50,50,true);
+                    resized = Bitmap.createScaledBitmap(image, 10, 10, true);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    image.compress(Bitmap.CompressFormat.JPEG,100,baos);
+                    byte[] imageBytes = baos.toByteArray();
+                    String imageString = Base64.encodeToString(imageBytes,Base64.DEFAULT);
+                    people.put("image",imageString);
+                    Log.d("yelin","sibal");
+                    people.put("hasImage",1);
+                }
                 }
                 catch(Exception e)
                 {
-
+                    Log.d("yelinnnn",e.getMessage());
                 }
-             //   Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
-                //InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
-//
-//                if(input==null)
-//                {
-//                    temp.setPhoto(BitmapFactory.decodeResource(getContext().getResources(),R.drawable.ic_action_name));
-//                }
-//                else
-//                {
-//                    temp.setPhoto(Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input), 50, 50, true));
-//                }
+                JsonSend send = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/contact",people);
+                send.retriveContactByOwner();
             }while(contactCursor.moveToNext());
         }
     }
-
 }
-
-
-

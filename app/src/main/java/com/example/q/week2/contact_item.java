@@ -5,11 +5,31 @@ import android.graphics.Bitmap;
 public class contact_item {
     private String name;
     private String number;
-    private Bitmap photo;
+    private String image;
+    private int hasImage;
 
-    public contact_item(String name, String number){
+    public void setHasImage(int hasImage) {
+        this.hasImage = hasImage;
+    }
+
+    public int getHasImage() {
+
+        return hasImage;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public contact_item(String name, String number,String image,int hasImage){
         this.name = name;
         this.number = number;
+        this.image = image;
+        this.hasImage = hasImage;
+    }
+
+    public String getImage() {
+        return image;
     }
 
     public String getName() {
@@ -20,9 +40,6 @@ public class contact_item {
         return number;
     }
 
-    public Bitmap getPhoto() {
-        return photo;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -30,9 +47,5 @@ public class contact_item {
 
     public void setNumber(String number) {
         this.number = number;
-    }
-
-    public void setPhoto(Bitmap photo) {
-        this.photo = photo;
     }
 }

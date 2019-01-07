@@ -37,17 +37,16 @@ public class JsonSend {
                   connection.setDoOutput(true);
                   OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
                   wr.write(json.toString());
-                  Log.d("yelin",json.toString());
+                  Log.d("yelin json to string",json.toString());
                   wr.flush();
                   BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                   String line;
                   while((line=serverAnswer.readLine())!=null)
                   {
-                      Log.d("yelin",line);
+                      Log.d("yelin aa",line);
                   }
                   wr.close();
                   serverAnswer.close();
-
               } catch (Exception e) {
                   Log.d("yelin error",e.getMessage());
               }
@@ -67,7 +66,6 @@ public class JsonSend {
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     statusCode = connection.getResponseCode();
-                    Log.d("yelin",String .valueOf(statusCode));
                     if(statusCode==200)
                     {
                         Log.d("yelin","already register");
@@ -111,6 +109,7 @@ public class JsonSend {
         };
         newThread.start();
     }
+
     public ArrayList<contact_item> getAllContact()
     {
         Log.d("yelin","getList in Json send");
@@ -138,7 +137,10 @@ public class JsonSend {
                         JSONObject temp = (JSONObject) jsonArray.get(i);
                         String name = temp.getString("name");
                         String phone = temp.getString("phone");
-                        contactList.add(new contact_item(name,phone));
+                        String image = temp.getString("image");
+                        int hasImage = temp.getInt("hasImage");
+                        Log.d("yelin aaaa", name);
+                        contactList.add(new contact_item(name,phone,image,hasImage));
                     }
                     serverAnswer.close();
                 } catch (Exception e) {
@@ -149,7 +151,6 @@ public class JsonSend {
         newThread.start();
         try{
             newThread.join();
-            Log.d("yelin number",String.valueOf(contactList.size()));
         }
         catch(Exception e)
         {
