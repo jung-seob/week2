@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -26,9 +36,12 @@ public class Tab2 extends Fragment {
     ArrayList<String> imageList = new ArrayList<>();
     View rootView;
     JSONObject myInfo;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    private RequestQueue requestQueue;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.tab2, container, false);
+        imageList = new ArrayList<>();
         myInfo = new JSONObject();
         try {
             myInfo.put("id", Token.ID);
@@ -39,9 +52,16 @@ public class Tab2 extends Fragment {
         {
 
         }
+        mSwipeRefreshLayout = rootView.findViewById(R.id.swipe2);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onResume();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
         galleryGridView = rootView.findViewById(R.id.gridview);
-        JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/gallery",myInfo);
-        imageList = jsonSend.getAllImage();
+        GetList();
         galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
         galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
@@ -65,8 +85,7 @@ public class Tab2 extends Fragment {
     public void onResume() {
         super.onResume();
         galleryGridView = rootView.findViewById(R.id.gridview);
-        JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/gallery",myInfo);
-        imageList = jsonSend.getAllImage();
+        GetList();
         galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
         galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -110,6 +129,35 @@ public class Tab2 extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+    private void GetList() {
+        if(Token.ID==null) Token.ID="";
+        requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                "http://socrip4.kaist.ac.kr:2380/api/gallery/" + Token.ID,
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            imageList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject temp = response.getJSONObject(i);
+                                imageList.add(temp.getString("name"));
+                            }
+                        } catch (Exception e) {
+                            Log.d("yelin", e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        requestQueue.add(jsonArrayRequest);
     }
 }
 
