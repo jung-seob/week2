@@ -32,7 +32,7 @@
 
         <activity
             android:name=".facebookActivity"
-            android:label="@string/app_name"
+            android:label="병아리 삐약삐약 돼지는 꿀꿀"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         </activity>

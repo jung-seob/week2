@@ -14,13 +14,12 @@ public class JsonSend {
     private String url_string;
     private JSONObject json;
     private int statusCode;
-    private ArrayList<contact_item> contactList;
-    private ArrayList<String> imageList;
-    private ArrayList<Recipe> recipeList;
+
     public JsonSend(String url, JSONObject json) {
         this.url_string = url;
         this.json = json;
     }
+
     public void create()
     {
         Log.d("yelin","start create");
@@ -110,89 +109,4 @@ public class JsonSend {
         };
         newThread.start();
     }
-
-    public ArrayList<String> getAllImage()
-    {
-        imageList = new ArrayList<String>();
-        Thread newThread = new Thread()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    URL url = new URL(url_string+ "/"+json.optString("id"));
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    statusCode = connection.getResponseCode();
-                    BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    JSONArray jsonArray = new JSONArray();
-                    if((line=serverAnswer.readLine())!=null)
-                    {
-                        jsonArray = new JSONArray(line);
-                    }
-                    for(int i = 0 ; i <jsonArray.length();i++)
-                    {
-                        JSONObject temp = (JSONObject) jsonArray.get(i);
-                       imageList.add(temp.getString("name"));
-                    }
-                    serverAnswer.close();
-                } catch (Exception e) {
-                    Log.d("yelin",e.getMessage());
-                }
-            }
-        };
-        newThread.start();
-        try{
-            newThread.join();
-        }
-        catch(Exception e)
-        {
-
-        }
-        return imageList;
-    }
-    public ArrayList<Recipe> getAllRecipe()
-    {
-        recipeList = new ArrayList<Recipe>();
-        Thread newThread = new Thread()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    URL url = new URL(url_string);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    statusCode = connection.getResponseCode();
-                    BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    JSONArray jsonArray = new JSONArray();
-                    if((line=serverAnswer.readLine())!=null)
-                    {
-                        jsonArray = new JSONArray(line);
-                    }
-                    for(int i = 0 ; i <jsonArray.length();i++)
-                    {
-                        JSONObject temp = (JSONObject) jsonArray.get(i);
-                        Recipe r = new Recipe(temp.getString("name"),temp.getString("name")+".jpg",temp.getString("ingredient"),temp.getString("howToCook"),temp.getString("time"),temp.getString("user"));
-                        recipeList.add(r);
-                    }
-                    serverAnswer.close();
-                } catch (Exception e) {
-                    Log.d("yelin",e.getMessage());
-                }
-            }
-        };
-        newThread.start();
-        try{
-            newThread.join();
-        }
-        catch(Exception e)
-        {
-
-        }
-        return recipeList;
-    }
-
 }

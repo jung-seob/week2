@@ -37,18 +37,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.facebook.AccessToken;
-import com.mongodb.util.JSON;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class Tab1 extends Fragment {
@@ -67,6 +59,7 @@ public class Tab1 extends Fragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.tab1, container, false);
         arrayList = new ArrayList<>();
+        filteredList = new ArrayList<>();
         mSwipeRefreshLayout = rootView.findViewById(R.id.swipe);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -83,7 +76,6 @@ public class Tab1 extends Fragment {
         }
         catch (Exception e)
         {
-
         }
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         editText = rootView.findViewById(R.id.search);
@@ -100,24 +92,15 @@ public class Tab1 extends Fragment {
                     filter(s.toString());
                 }
             });
-            rootView.setOnTouchListener(new View.OnTouchListener() {
+        rootView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
+            hideKeyboard(v);
+            return false;
                 }
             });
-
-            editText.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
-                }
-            });
-            recyclerView = rootView.findViewById(R.id.contactView);
-            GetList();
-    
+        recyclerView = rootView.findViewById(R.id.contactView);
+        GetList();
         FloatingActionButton add = rootView.findViewById(R.id.fab);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +149,6 @@ public class Tab1 extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
                     }
                 }
         );
@@ -181,7 +163,7 @@ public class Tab1 extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.scrollToPosition(0);
         recyclerView.setAdapter(listAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+    //    recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
