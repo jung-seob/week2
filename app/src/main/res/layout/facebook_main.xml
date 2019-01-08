@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#C4CEDA">
 
     <ImageView
         android:id="@+id/imageView"
@@ -17,7 +19,7 @@
         android:layout_alignTop="@+id/imageView"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="449dp" />
+        android:layout_marginTop="471dp" />
 
     <TextView
         android:id="@+id/textView3"
@@ -25,12 +27,11 @@
         android:layout_height="59dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="19dp"
+        android:layout_marginTop="51dp"
         android:text="나도 백종원이다"
         android:textColor="#012296"
         android:textSize="40dp"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
 
 
 </RelativeLayout>
