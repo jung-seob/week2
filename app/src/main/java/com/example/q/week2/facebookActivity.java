@@ -60,10 +60,12 @@ public class facebookActivity extends AppCompatActivity {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                Log.d("token","on success");
                 Thread thread = new Thread() {
                     @Override
                     public void run() {
                         try {
+                            accessToken = AccessToken.getCurrentAccessToken();
                             getFBGraph();
                         } catch (Exception e) {
                         }
@@ -101,7 +103,6 @@ public class facebookActivity extends AppCompatActivity {
                             new GraphRequest.GraphJSONObjectCallback() {
                                 @Override
                                 public void onCompleted(final JSONObject object, GraphResponse response) {
-                                    Log.d("yelin",object.toString());
                                     try {
                                         Token.ID = object.getString("id");
                                         Token.Name = object.getString("name");

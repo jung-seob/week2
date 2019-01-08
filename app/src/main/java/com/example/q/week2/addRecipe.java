@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 public class addRecipe extends Activity {
     CallbackManager callbackManager;
-    ImageView camera;
+    Button camera;
     EditText nameInput;
     EditText ingredientInput;
     EditText howToCookInput;
@@ -65,7 +65,7 @@ public class addRecipe extends Activity {
                         jsonObject.put("name", nameInput.getText().toString());
                         jsonObject.put("ingredient",ingredientInput.getText().toString());
                         jsonObject.put("howToCook",howToCookInput.getText().toString());
-                        jsonObject.put("time",new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date()));
+                        jsonObject.put("time",new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()));
                         jsonObject.put("user",Token.Name);
                         JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/recipe",jsonObject);
                         jsonSend.create();

@@ -56,6 +56,7 @@ public class Tab2 extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d("tab2","on refresh");
                 onResume();
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -63,17 +64,19 @@ public class Tab2 extends Fragment {
         galleryGridView = rootView.findViewById(R.id.gridview);
         GetList();
         galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
-        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("yelin","clicked");
-            }
-        });
+//        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//        @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Log.d("yelin","clicked");
+//            }
+//        });
         FloatingActionButton addImage = rootView.findViewById(R.id.fab2);
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickImage();
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent,2);
                 Snackbar.make(v, "Add a Photo to Server", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -83,27 +86,13 @@ public class Tab2 extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d("tab2","on resume");
         super.onResume();
-        galleryGridView = rootView.findViewById(R.id.gridview);
         GetList();
-        galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
-        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("yelin","clicked");
-            }
-        });
-    }
-    public void pickImage() {
-        Log.d("yelin","pick Image");
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent,2);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("yelin","on Activity Result");
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
             if (data == null) {
@@ -125,27 +114,31 @@ public class Tab2 extends Fragment {
                 object.put("image",imageString);
                 JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/gallery",object);
                 jsonSend.create();
+                GetList();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
     private void GetList() {
+        Log.d("tab2","get list");
         if(Token.ID==null) Token.ID="";
         requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                "http://socrip4.kaist.ac.kr:2380/api/gallery/" + Token.ID,
+                "http://socrip4.kaist.ac.kr:2380/api/gallery",
                 null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
+                            Log.d("tab2 len",String.valueOf(response.length()));
                             imageList = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject temp = response.getJSONObject(i);
                                 imageList.add(temp.getString("name"));
                             }
+                            galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
                         } catch (Exception e) {
                             Log.d("yelin", e.getMessage());
                         }

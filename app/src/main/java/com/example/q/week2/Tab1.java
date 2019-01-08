@@ -123,6 +123,7 @@ public class Tab1 extends Fragment {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
+                            arrayList = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject temp = response.getJSONObject(i);
                                 String name = temp.getString("name");
