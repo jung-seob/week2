@@ -39,7 +39,6 @@ public class Tab3 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        Log.d("Tab3","tab3 oncreate View");
         rootView = inflater.inflate(R.layout.tab3,container,false);
         recipeArrayList = new ArrayList<>();
         mSwipeRefreshLayout = rootView.findViewById(R.id.swipe3);
@@ -59,10 +58,10 @@ public class Tab3 extends Fragment {
         }
         catch (Exception e)
         {
+
         }
         recyclerView = rootView.findViewById(R.id.recipeView);
-        GetList();
-        buildRecyclerView();
+     //   GetList();
         FloatingActionButton add = rootView.findViewById(R.id.fab2);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,28 +74,26 @@ public class Tab3 extends Fragment {
     }
     @Override
     public void onResume(){
-        Log.d("Tab3","onResume");
+        Log.d("tab3","onResume");
         super.onResume();
-        recipeArrayList = new ArrayList<>();
+      //  recipeArrayList = new ArrayList<>();
         GetList();
     }
     private void GetList(){
-        Log.d("Tab3","Get List");
+        Log.d("tab3","get list");
         if(Token.ID==null) Token.ID="";
         requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                "http://socrip4.kaist.ac.kr:2380/api/recipe",
+                "http://socrip4.kaist.ac.kr:2380/api/recipe/" + Token.ID,
                 null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
-                            Log.d("tab3 length",String.valueOf(response.length()));
-                            recipeArrayList = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
+
                                 JSONObject temp = response.getJSONObject(i);
-                                Log.d("Tab3", temp.getString("name"));
                                 Recipe r = new Recipe(temp.getString("name"),temp.getString("name")+".jpg",temp.getString("ingredient"),temp.getString("howToCook"),temp.getString("time"),temp.getString("user"));
                                 recipeArrayList.add(r);
                             }
@@ -115,16 +112,15 @@ public class Tab3 extends Fragment {
         requestQueue.add(jsonArrayRequest);
     }
     private void buildRecyclerView(){
-        Log.d("Tab3","buile recycler view");
-        recyclerView=rootView.findViewById(R.id.recipeView);
+        Log.d("tab3","build recyclerview");
+      //  recyclerView=rootView.findViewById(R.id.recipeView);
         layoutManager = new LinearLayoutManager(getActivity());
         recipeAdapter = new recipeAdapter(recipeArrayList);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.scrollToPosition(0);
         recyclerView.setAdapter(recipeAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+      //  recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
-
     private void add()
     {
         Log.d("tab3","add");

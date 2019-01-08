@@ -93,7 +93,7 @@ public class Tab1 extends Fragment {
                 }
             });
         recyclerView = rootView.findViewById(R.id.contactView);
-        GetList();
+        //GetList();
         FloatingActionButton add = rootView.findViewById(R.id.fab);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +108,7 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        arrayList = new ArrayList<>();
+        //arrayList = new ArrayList<>();
         GetList();
     }
 
@@ -123,7 +123,6 @@ public class Tab1 extends Fragment {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
-                            arrayList = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject temp = response.getJSONObject(i);
                                 String name = temp.getString("name");
@@ -150,12 +149,13 @@ public class Tab1 extends Fragment {
     private void buildRecyclerView()
     {
         Log.d("RecyclerView","build recycler View");
-        recyclerView = rootView.findViewById(R.id.contactView);
+        //recyclerView = rootView.findViewById(R.id.contactView);
         layoutManager = new LinearLayoutManager(getActivity());
         listAdapter = new contactListAdapter(arrayList);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.scrollToPosition(0);
         recyclerView.setAdapter(listAdapter);
+    //    recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     private void filter(String text)
@@ -226,6 +226,7 @@ public class Tab1 extends Fragment {
                 send.retriveContactByOwner();
             }while(contactCursor.moveToNext());
         }
+        GetList();
     }
 }
 
