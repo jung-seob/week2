@@ -54,7 +54,6 @@ public class facebookActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile", "user_friends", "email");
         accessToken = AccessToken.getCurrentAccessToken();
-
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "email"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -74,7 +73,6 @@ public class facebookActivity extends AppCompatActivity {
                 thread.start();
                 finish();
             }
-
             @Override
             public void onCancel() {
             }
@@ -107,7 +105,6 @@ public class facebookActivity extends AppCompatActivity {
                                         Token.ID = object.getString("id");
                                         Token.Name = object.getString("name");
                                         Token.email = object.getString("email");
-                                        Log.d("checkkkk",Token.email+Token.ID+Token.Name);
                                     }
                                     catch(Exception e)
                                     {

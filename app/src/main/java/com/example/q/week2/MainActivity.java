@@ -75,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.READ_CONTACTS,
                         Manifest.permission.WRITE_CONTACTS)
                 .check();
-//
-//        getSupportFragmentManager().beginTransaction().add(R.id.search, new SwipeRefreshLayout()).commit();
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -95,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     Tab2 tab2 = new Tab2();
                     return tab2;
                 case 2 :
+                    Log.d("Tab3","tab3");
                     Tab3 tab3 = new Tab3();
                     return tab3;
                 default:
