@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,10 +46,24 @@ public class Tab1 extends Fragment {
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     contactListAdapter listAdapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     JSONObject myInfo;
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+
+        Log.d("swipe","onCreateView");
         rootView = inflater.inflate(R.layout.tab1, container, false);
+//        if (mSwipeRefreshLayout.isRefreshing()) {
+//            mSwipeRefreshLayout.setRefreshing(false);
+//        }
+        mSwipeRefreshLayout = rootView.findViewById(R.id.swipe);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+               onCreateView(inflater,container,savedInstanceState);
+            }
+        });
         myInfo = new JSONObject();
         try {
             myInfo.put("id", Token.ID);
@@ -60,9 +75,10 @@ public class Tab1 extends Fragment {
 
         }
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_DENIED) {
             arrayList = GetList();
             buildRecyclerView();
+
+
             editText = rootView.findViewById(R.id.search);
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -101,7 +117,7 @@ public class Tab1 extends Fragment {
                     return false;
                 }
             });
-        }
+
 
         FloatingActionButton add = rootView.findViewById(R.id.fab);
         add.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +133,6 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ArrayList<contact_item> arrayList;
         arrayList = GetList();
         RecyclerView recyclerView = rootView.findViewById(R.id.contactView);
         recyclerView.setHasFixedSize(true);
