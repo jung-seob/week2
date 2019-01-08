@@ -1,6 +1,7 @@
 package com.example.q.week2;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -8,13 +9,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.SwipeDismissBehavior;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentContainer;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,7 +42,6 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-
 public class Tab1 extends Fragment {
     View rootView;
     EditText editText;
@@ -45,10 +50,28 @@ public class Tab1 extends Fragment {
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     contactListAdapter listAdapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     JSONObject myInfo;
+
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+
+        Log.d("swipe","onCreateView");
         rootView = inflater.inflate(R.layout.tab1, container, false);
+//        if (mSwipeRefreshLayout.isRefreshing()) {
+//            mSwipeRefreshLayout.setRefreshing(false);
+//        }
+        mSwipeRefreshLayout = rootView.findViewById(R.id.swipe);
+        mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_green_dark),getResources().getColor(android.R.color.holo_red_dark),getResources().getColor(android.R.color.holo_blue_dark));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onResume();
+                mSwipeRefreshLayout.setRefreshing(false);
+                //onCreateView(inflater,container,savedInstanceState);
+            }
+        });
         myInfo = new JSONObject();
         try {
             myInfo.put("id", Token.ID);
@@ -60,48 +83,49 @@ public class Tab1 extends Fragment {
 
         }
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_DENIED) {
-            arrayList = GetList();
-            buildRecyclerView();
-            editText = rootView.findViewById(R.id.search);
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
+        arrayList = GetList();
+        buildRecyclerView();
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
 
-                @Override
-                public void afterTextChanged(Editable s) {
-                    filter(s.toString());
-                }
-            });
-            rootView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
-                }
-            });
+        editText = rootView.findViewById(R.id.search);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-            editText.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
-                }
-            });
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-            recyclerView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
-                }
-            });
-        }
+            @Override
+            public void afterTextChanged(Editable s) {
+                filter(s.toString());
+            }
+        });
+        rootView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard(v);
+                return false;
+            }
+        });
+
+        editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard(v);
+                return false;
+            }
+        });
+
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard(v);
+                return false;
+            }
+        });
+
 
         FloatingActionButton add = rootView.findViewById(R.id.fab);
         add.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +141,6 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ArrayList<contact_item> arrayList;
         arrayList = GetList();
         RecyclerView recyclerView = rootView.findViewById(R.id.contactView);
         recyclerView.setHasFixedSize(true);
@@ -192,25 +215,25 @@ public class Tab1 extends Fragment {
                     people.put("name", contactCursor.getString(1));
                     people.put("phone", contactCursor.getString(0));
                     people.put("contactOwner",Token.ID);
-                Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
-                InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
-                Bitmap image;
-                Bitmap resized;
-                if(input==null)
-                {
-                    people.put("image","0");
-                    people.put("hasImage",0);
-                }
-                else
-                {
-                    image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input),50,50,true);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    image.compress(Bitmap.CompressFormat.JPEG,100,baos);
-                    byte[] imageBytes = baos.toByteArray();
-                    String imageString = Base64.encodeToString(imageBytes,Base64.DEFAULT);
-                    people.put("image",imageString);
-                    people.put("hasImage",1);
-                }
+                    Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
+                    InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
+                    Bitmap image;
+                    Bitmap resized;
+                    if(input==null)
+                    {
+                        people.put("image","0");
+                        people.put("hasImage",0);
+                    }
+                    else
+                    {
+                        image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(input),50,50,true);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        image.compress(Bitmap.CompressFormat.JPEG,100,baos);
+                        byte[] imageBytes = baos.toByteArray();
+                        String imageString = Base64.encodeToString(imageBytes,Base64.DEFAULT);
+                        people.put("image",imageString);
+                        people.put("hasImage",1);
+                    }
                 }
                 catch(Exception e)
                 {
@@ -228,6 +251,3 @@ public class Tab1 extends Fragment {
         listAdapter.notifyDataSetChanged();
     }
 }
-
-
-
