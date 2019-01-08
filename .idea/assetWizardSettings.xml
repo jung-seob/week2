@@ -44,6 +44,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
+                                      <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="ffffff" />
                                       <entry key="backgroundImage" value="C:\Users\q\99BACC445A4B25F20B.png" />
                                       <entry key="foregroundImage" value="C:\Users\q\appicon.png" />

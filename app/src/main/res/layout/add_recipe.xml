@@ -109,7 +109,6 @@
             android:id="@+id/howToCookInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
             android:hint="레시피 공개~★"
             android:textAppearance="?android:textAppearanceMedium"
             android:clickable="false"

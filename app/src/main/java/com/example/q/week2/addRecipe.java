@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 import com.facebook.CallbackManager;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
@@ -21,6 +23,7 @@ import java.io.InputStream;
 public class addRecipe extends Activity {
     CallbackManager callbackManager;
     Button camera;
+    ImageView image1;
     EditText nameInput;
     EditText ingredientInput;
     EditText howToCookInput;
@@ -97,10 +100,10 @@ public class addRecipe extends Activity {
                 return;
             }
             try {
-                Log.d("tab3","on activity result try");
-                JSONObject object = new JSONObject();
                 InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
                 Bitmap image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream),100,100,true);
+                image1 = findViewById(R.id.uploading_image);
+                image1.setImageBitmap(image);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 image.compress(Bitmap.CompressFormat.JPEG,100,baos);
                 byte[] imageBytes = baos.toByteArray();
