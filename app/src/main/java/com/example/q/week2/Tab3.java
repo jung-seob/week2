@@ -80,17 +80,19 @@ public class Tab3 extends Fragment {
         GetList();
     }
     private void GetList(){
-        Log.d("tab3","get list");
+        Log.d("tab3","get list ");
         if(Token.ID==null) Token.ID="";
         requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                "http://socrip4.kaist.ac.kr:2380/api/recipe/" + Token.ID,
+                "http://socrip4.kaist.ac.kr:2380/api/recipe",
                 null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
+                            recipeArrayList = new ArrayList<>();
+                            Log.d("tab3 len",String.valueOf(response.length()));
                             for (int i = 0; i < response.length(); i++) {
 
                                 JSONObject temp = response.getJSONObject(i);
