@@ -31,11 +31,24 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
+import com.mongodb.util.JSON;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Tab1 extends Fragment {
@@ -48,20 +61,18 @@ public class Tab1 extends Fragment {
     contactListAdapter listAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
     JSONObject myInfo;
+    private RequestQueue requestQueue;
+
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-
-        Log.d("swipe","onCreateView");
         rootView = inflater.inflate(R.layout.tab1, container, false);
-//        if (mSwipeRefreshLayout.isRefreshing()) {
-//            mSwipeRefreshLayout.setRefreshing(false);
-//        }
+        arrayList = new ArrayList<>();
         mSwipeRefreshLayout = rootView.findViewById(R.id.swipe);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mSwipeRefreshLayout.setRefreshing(true);
-               onCreateView(inflater,container,savedInstanceState);
+                onResume();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
         myInfo = new JSONObject();
@@ -75,22 +86,17 @@ public class Tab1 extends Fragment {
 
         }
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            arrayList = GetList();
-            buildRecyclerView();
+        editText = rootView.findViewById(R.id.search);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-
-            editText = rootView.findViewById(R.id.search);
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+             }
+             @Override
+              public void afterTextChanged(Editable s) {
                     filter(s.toString());
                 }
             });
@@ -109,16 +115,9 @@ public class Tab1 extends Fragment {
                     return false;
                 }
             });
-
-            recyclerView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideKeyboard(v);
-                    return false;
-                }
-            });
-
-
+            recyclerView = rootView.findViewById(R.id.contactView);
+            GetList();
+    
         FloatingActionButton add = rootView.findViewById(R.id.fab);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,25 +132,49 @@ public class Tab1 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        arrayList = GetList();
-        RecyclerView recyclerView = rootView.findViewById(R.id.contactView);
-        recyclerView.setHasFixedSize(true);
-        contactListAdapter listAdapter = new contactListAdapter(arrayList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.scrollToPosition(0);
-        recyclerView.setAdapter(listAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        arrayList = new ArrayList<>();
+        GetList();
     }
 
-    private ArrayList<contact_item> GetList() {
-        ArrayList<contact_item> persons = new ArrayList();
-        JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/contact",myInfo);
-        persons= jsonSend.getAllContact();
-        return persons;
+    private void GetList() {
+        if(Token.ID==null) Token.ID="";
+        requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                "http://socrip4.kaist.ac.kr:2380/api/contact/" + Token.ID,
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            arrayList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject temp = response.getJSONObject(i);
+                                String name = temp.getString("name");
+                                String phone = temp.getString("phone");
+                                String image = temp.getString("image");
+                                int hasImage = temp.getInt("hasImage");
+                                Log.d("RecyclerView", name);
+                                arrayList.add(new contact_item(name, phone, image, hasImage));
+                            }
+                            buildRecyclerView();
+                        } catch (Exception e) {
+                            Log.d("yelin", e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }
+        );
+        requestQueue.add(jsonArrayRequest);
     }
     private void buildRecyclerView()
     {
+        Log.d("RecyclerView","build recycler View");
         recyclerView = rootView.findViewById(R.id.contactView);
         layoutManager = new LinearLayoutManager(getActivity());
         listAdapter = new contactListAdapter(arrayList);
@@ -210,7 +233,6 @@ public class Tab1 extends Fragment {
                 Uri photo_uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactCursor.getLong(2));
                 InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(),photo_uri);
                 Bitmap image;
-                Bitmap resized;
                 if(input==null)
                 {
                     people.put("image","0");
@@ -234,13 +256,7 @@ public class Tab1 extends Fragment {
                 send.retriveContactByOwner();
             }while(contactCursor.moveToNext());
         }
-        ArrayList<contact_item> arrayList;
-        arrayList = GetList();
-        Log.d("listsize :",String.valueOf(arrayList.size()));
-        listAdapter = new contactListAdapter(arrayList);
-        recyclerView.setAdapter(listAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        listAdapter.notifyDataSetChanged();
+        GetList();
     }
 }
 

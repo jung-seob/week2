@@ -2,6 +2,7 @@ package com.example.q.week2;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
@@ -17,7 +18,9 @@ import java.util.ArrayList;
 
 public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.MyViewHolder> {
     ArrayList<contact_item> contactList;
-    public static class MyViewHolder extends RecyclerView.ViewHolder
+
+
+    public class MyViewHolder extends RecyclerView.ViewHolder
     {
         public TextView name_view;
         public TextView num_view;
@@ -32,6 +35,8 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
     }
 
     public contactListAdapter(ArrayList<contact_item> contactList){this.contactList = contactList;}
+    public contactListAdapter(){contactList=new ArrayList<contact_item>();}
+
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_item, parent, false);
@@ -45,7 +50,6 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
         holder.name_view.setText(contactList.get(position).getName());
         holder.num_view.setText(contactList.get(position).getNumber());
        if(contactList.get(position).getHasImage()==1) {
-            final String imageString = contactList.get(position).getImage();
             Thread thread = new Thread() {
                 @Override
                 public void run() {
@@ -68,6 +72,7 @@ public class contactListAdapter extends RecyclerView.Adapter<contactListAdapter.
     @Override
     public int getItemCount()
     {
+        if(contactList.equals(null)) return 0;
         return contactList.size();
     }
 

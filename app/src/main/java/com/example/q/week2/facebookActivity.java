@@ -12,9 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -41,25 +43,20 @@ public class facebookActivity extends AppCompatActivity {
     LoginManager loginManager;
     AccessToken accessToken;
     String graph = null;
-
+    ImageView imageView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        // 페북  SDK정보 초기화
-//        FacebookSdk.sdkInitialize(getApplicationContext());
-//        AppEventsLogger.activateApp(this);
-//        //</페북 SDK정보 초기화>
-
         setContentView(R.layout.facebook_main);
+        imageView = findViewById(R.id.pig);
+        Glide.with(getApplicationContext()).asGif().load(R.drawable.pig).into(imageView);
         callbackManager = CallbackManager.Factory.create();
-
         loginButton = findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile", "user_friends", "email");
         accessToken = AccessToken.getCurrentAccessToken();
 
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "email"));
-
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {

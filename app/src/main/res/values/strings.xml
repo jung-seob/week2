@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">week2</string>
+    <string name="app_name">병아리 삐약삐약 돼지는 꿀꿀</string>
     <string name="action_settings">Settings</string>
-    <string name="tab1">Contact</string>
-    <string name="tab2">Gallery</string>
-    <string name="tab3">Recommendation</string>
+    <string name="tab1">맛집리스트</string>
+    <string name="tab2">먹킷리스트</string>
+    <string name="tab3">나도 백종원!</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="facebook_app_id">2238282716495640</string> <string name="fb_login_protocol_scheme">fb2238282716495640</string>
 </resources>

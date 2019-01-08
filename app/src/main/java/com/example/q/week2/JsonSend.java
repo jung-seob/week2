@@ -16,7 +16,7 @@ public class JsonSend {
     private int statusCode;
     private ArrayList<contact_item> contactList;
     private ArrayList<String> imageList;
-
+    private ArrayList<Recipe> recipeList;
     public JsonSend(String url, JSONObject json) {
         this.url_string = url;
         this.json = json;
@@ -111,58 +111,8 @@ public class JsonSend {
         newThread.start();
     }
 
-    public ArrayList<contact_item> getAllContact()
-    {
-        Log.d("yelin","getList in Json send");
-        contactList = new ArrayList<contact_item>();
-        Thread newThread = new Thread()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    URL url = new URL(url_string+ "/"+json.optString("id"));
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    statusCode = connection.getResponseCode();
-                    Log.d("yelin",String .valueOf(statusCode));
-                    BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    JSONArray jsonArray = new JSONArray();
-                    if((line=serverAnswer.readLine())!=null)
-                    {
-                        jsonArray = new JSONArray(line);
-                    }
-                    for(int i = 0 ; i <jsonArray.length();i++)
-                    {
-                        Log.d("yelin","b");
-                        JSONObject temp = (JSONObject) jsonArray.get(i);
-                        String name = temp.getString("name");
-                        String phone = temp.getString("phone");
-                        String image = temp.getString("image");
-                        int hasImage = temp.getInt("hasImage");
-                        contactList.add(new contact_item(name,phone,image,hasImage));
-                    }
-                    serverAnswer.close();
-                } catch (Exception e) {
-                    Log.d("yelin",e.getMessage());
-                }
-            }
-        };
-        newThread.start();
-        try{
-            newThread.join();
-        }
-        catch(Exception e)
-        {
-            Log.d("yelin", "exception");
-        }
-        Log.d("yelin","c");
-        return contactList;
-    }
     public ArrayList<String> getAllImage()
     {
-        Log.d("yelin","getList in Json send");
         imageList = new ArrayList<String>();
         Thread newThread = new Thread()
         {
@@ -202,4 +152,47 @@ public class JsonSend {
         }
         return imageList;
     }
+    public ArrayList<Recipe> getAllRecipe()
+    {
+        recipeList = new ArrayList<Recipe>();
+        Thread newThread = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    URL url = new URL(url_string);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    statusCode = connection.getResponseCode();
+                    BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    JSONArray jsonArray = new JSONArray();
+                    if((line=serverAnswer.readLine())!=null)
+                    {
+                        jsonArray = new JSONArray(line);
+                    }
+                    for(int i = 0 ; i <jsonArray.length();i++)
+                    {
+                        JSONObject temp = (JSONObject) jsonArray.get(i);
+                        Recipe r = new Recipe(temp.getString("name"),temp.getString("name")+".jpg",temp.getString("ingredient"),temp.getString("howToCook"),temp.getString("time"),temp.getString("user"));
+                        recipeList.add(r);
+                    }
+                    serverAnswer.close();
+                } catch (Exception e) {
+                    Log.d("yelin",e.getMessage());
+                }
+            }
+        };
+        newThread.start();
+        try{
+            newThread.join();
+        }
+        catch(Exception e)
+        {
+
+        }
+        return recipeList;
+    }
+
 }
