@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -25,11 +34,22 @@ public class Tab3 extends Fragment {
     RecyclerView.LayoutManager layoutManager;
     recipeAdapter recipeAdapter;
     JSONObject myInfo;
-
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    private RequestQueue requestQueue;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         rootView = inflater.inflate(R.layout.tab3,container,false);
+        recipeArrayList = new ArrayList<>();
+        mSwipeRefreshLayout = rootView.findViewById(R.id.swipe3);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d("Tab3","on Refresh");
+                onResume();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
         myInfo = new JSONObject();
         try {
             myInfo.put("id", Token.ID);
@@ -55,11 +75,39 @@ public class Tab3 extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-
+        recipeArrayList = new ArrayList<>();
+        GetList();
     }
     private void GetList(){
-        JsonSend jsonSend = new JsonSend("http://socrip4.kaist.ac.kr:2380/api/recipe",myInfo);
-        recipeArrayList = jsonSend.getAllRecipe();
+        if(Token.ID==null) Token.ID="";
+        requestQueue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                "http://socrip4.kaist.ac.kr:2380/api/recipe/" + Token.ID,
+                null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            recipeArrayList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject temp = response.getJSONObject(i);
+                                Recipe r = new Recipe(temp.getString("name"),temp.getString("name")+".jpg",temp.getString("ingredient"),temp.getString("howToCook"),temp.getString("time"),temp.getString("user"));
+                                recipeArrayList.add(r);
+                            }
+                            buildRecyclerView();
+                        } catch (Exception e) {
+                            Log.d("yelin", e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        );
+        requestQueue.add(jsonArrayRequest);
     }
     private void buildRecyclerView(){
         recyclerView=rootView.findViewById(R.id.recipeView);
