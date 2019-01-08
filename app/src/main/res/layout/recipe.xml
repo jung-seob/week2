@@ -33,12 +33,13 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="User"
-                android:padding="10dp"/>
+                android:padding="10dp"
+                android:text="User" />
             <TextView
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
@@ -47,12 +48,12 @@
                 android:padding="10dp"/>
         </LinearLayout>
 </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="재료 리스트"
-           android:padding="10dp"
-            />
+            android:padding="10dp"
+            android:text="재료 리스트" />
         <TextView
             android:id="@+id/ingredient"
             android:layout_width="match_parent"
