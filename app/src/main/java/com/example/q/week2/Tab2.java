@@ -40,6 +40,7 @@ public class Tab2 extends Fragment {
     private RequestQueue requestQueue;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d("tab2","tab2 onCreateView");
         rootView = inflater.inflate(R.layout.tab2, container, false);
         imageList = new ArrayList<>();
         myInfo = new JSONObject();
@@ -56,6 +57,7 @@ public class Tab2 extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d("tab2","refresh");
                 onResume();
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -83,16 +85,11 @@ public class Tab2 extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d("tab2","on Resume");
         super.onResume();
         galleryGridView = rootView.findViewById(R.id.gridview);
         GetList();
         galleryGridView.setAdapter(new ImageListAdapter(getContext(),imageList));
-        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("yelin","clicked");
-            }
-        });
     }
     public void pickImage() {
         Log.d("yelin","pick Image");

@@ -97,6 +97,7 @@ public class addRecipe extends Activity {
                 return;
             }
             try {
+                Log.d("tab3","on activity result try");
                 JSONObject object = new JSONObject();
                 InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
                 Bitmap image = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(inputStream),100,100,true);

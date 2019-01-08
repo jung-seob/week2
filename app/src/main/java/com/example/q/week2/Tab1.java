@@ -92,13 +92,6 @@ public class Tab1 extends Fragment {
                     filter(s.toString());
                 }
             });
-        rootView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-            hideKeyboard(v);
-            return false;
-                }
-            });
         recyclerView = rootView.findViewById(R.id.contactView);
         GetList();
         FloatingActionButton add = rootView.findViewById(R.id.fab);
@@ -163,11 +156,6 @@ public class Tab1 extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.scrollToPosition(0);
         recyclerView.setAdapter(listAdapter);
-    //    recyclerView.setItemAnimator(new DefaultItemAnimator());
-    }
-    public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void filter(String text)
@@ -238,7 +226,6 @@ public class Tab1 extends Fragment {
                 send.retriveContactByOwner();
             }while(contactCursor.moveToNext());
         }
-        GetList();
     }
 }
 
